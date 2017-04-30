@@ -1,5 +1,6 @@
 package com.adowsky.service.entities;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "libraries")
 @Data
 @NoArgsConstructor
+@Builder
 public class LibraryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
