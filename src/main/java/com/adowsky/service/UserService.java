@@ -39,8 +39,20 @@ public class UserService {
         return authorizationService.generateAuthorizationToken(user.getId());
     }
 
-    public void confirmRegistration(String confirmationId) {
-        throw new UnsupportedOperationException();
+    public void confirmRegistration(String username, String confirmationId) {
+        UserEntity userEntity = userRepository.getByUsername(username)
+                .orElseThrow(UserException::noSuchUser);
+
+        if(userEntity.isConfirmed()) {
+            throw UserException.registrationAlreadyConfirmed();
+        }
+
+        if(userEntity.getRegistrationHash().equals(confirmationId)) {
+            throw UserException.invalidConfirmation();
+        }
+
+        userEntity.setConfirmed(true);
+        userRepository.save(userEntity);
     }
 
 }

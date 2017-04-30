@@ -18,5 +18,5 @@ public class UserEntity {
     private String firstName;
     private String surname;
     private String registrationHash;
-    private boolean registered;
+    private boolean confirmed;
 }

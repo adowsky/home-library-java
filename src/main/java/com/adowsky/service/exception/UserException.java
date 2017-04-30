@@ -16,4 +16,12 @@ public class UserException extends RuntimeException {
     public static UserException invalidCredentials() {
         return new UserException("Invalid credentials");
     }
+
+    public static UserException registrationAlreadyConfirmed() {
+        return new UserException("Registration already confirmed");
+    }
+
+    public static UserException invalidConfirmation() {
+        return new UserException("Invalid confirmation hash");
+    }
 }

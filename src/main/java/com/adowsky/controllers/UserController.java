@@ -28,15 +28,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @GetMapping(value = "/{username}/confirmation")
+    public ResponseEntity confirmRegistration(@PathVariable String username, @RequestParam("confirm") String confirmationId) {
+        userService.confirmRegistration(username, confirmationId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(value = "/{username}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity login(@PathVariable String username, @Valid @RequestBody LoginRequest request) {
         Credentials credentials = new Credentials(username, request.getPasswordHash());
         AuthorizationToken authorizationToken = userService.login(credentials);
         return ResponseEntity.ok(new LoginResponse(authorizationToken.getToken()));
-    }
-
-    @GetMapping(value = "/{username}/confirmation")
-    public ResponseEntity confirmRegistration(@RequestParam("confirm") String confirmationId) {
-        throw new UnsupportedOperationException();
     }
 }
