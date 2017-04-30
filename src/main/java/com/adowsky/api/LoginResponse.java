@@ -1,12 +1,11 @@
-package com.adowsky.model;
-
+package com.adowsky.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class AuthorizationToken {
-    private String token;
+public class LoginResponse {
+    private String accessToken;
 
 }
