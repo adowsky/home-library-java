@@ -9,22 +9,29 @@ import com.adowsky.service.exception.UserException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final AuthorizationService authorizationService;
 
-    private final UserEntityMapper userEntityMapper;
-
     public void register(User user, String passwordHash) {
-        boolean exists = userRepository.getByUsername(user.getUserName()).isPresent();
+        boolean exists = userRepository.getByUsername(user.getUsername()).isPresent();
         if (exists) {
             throw UserException.userExists();
         }
 
-        UserEntity userEntity = userEntityMapper.userToUserEntity(user);
-        userEntity.setPassword(passwordHash);
+        UserEntity userEntity = UserEntity.builder()
+                .firstName(user.getFirstName())
+                .password(passwordHash)
+                .confirmed(false)
+                .surname(user.getSurname())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .registrationHash(UUID.randomUUID().toString())
+                .build();
         userRepository.save(userEntity);
     }
 
@@ -47,7 +54,7 @@ public class UserService {
             throw UserException.registrationAlreadyConfirmed();
         }
 
-        if(userEntity.getRegistrationHash().equals(confirmationId)) {
+        if(!userEntity.getRegistrationHash().equals(confirmationId)) {
             throw UserException.invalidConfirmation();
         }
 
