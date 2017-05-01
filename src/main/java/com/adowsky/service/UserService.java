@@ -62,4 +62,11 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
+    long getUserId(String username) {
+        UserEntity user = userRepository.getByUsername(username)
+                .orElseThrow(UserException::noSuchUser);
+
+        return user.getId();
+    }
+
 }
