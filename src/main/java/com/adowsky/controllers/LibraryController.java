@@ -35,8 +35,9 @@ public class LibraryController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<BookResource>> findBooks(@RequestParam("author") String author, @RequestParam("title") String title) {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<BookResource>> findBooks(@RequestParam(value = "author", required = false) String author,
+                                                        @RequestParam(value = "title", required = false) String title) {
         List<BookResource> books = libraryService.findByTitleAndAuthor(title, author).stream()
                 .map(book -> new BookResource(book.getTitle(), book.getAuthor())).collect(Collectors.toList());
         return ResponseEntity.ok(books);

@@ -1,3 +1,5 @@
+DROP SCHEMA IF EXISTS homelibrary;
+
 CREATE SCHEMA homelibrary
   AUTHORIZATION sa;
 
@@ -87,7 +89,7 @@ CREATE TABLE comments (
   content VARCHAR(1048576) NOT NULL
 );
 
-CREATE INDEX library_entry__idx
+CREATE INDEX comments_book_id__idx
   ON comments (book_id ASC);
 
 ALTER TABLE comments

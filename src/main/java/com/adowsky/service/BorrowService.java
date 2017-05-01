@@ -4,9 +4,11 @@ import com.adowsky.service.entities.BorrowEntity;
 import com.adowsky.service.entities.LibraryEntity;
 import com.adowsky.service.exception.BorrowException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class BorrowService {
@@ -28,6 +30,8 @@ public class BorrowService {
         borrowRepository.save(borrowEntity);
 
         libraryEntity.setBorrowed(true);
+
+        log.info("Borrowed book {} from user {} by user {}", bookId, libraryEntity.getLibraryOwner(), borrowerId);
         libraryRepository.save(libraryEntity);
     }
 

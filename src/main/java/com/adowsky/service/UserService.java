@@ -7,10 +7,12 @@ import com.adowsky.model.User;
 import com.adowsky.service.entities.UserEntity;
 import com.adowsky.service.exception.UserException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -32,6 +34,9 @@ public class UserService {
                 .email(user.getEmail())
                 .registrationHash(UUID.randomUUID().toString())
                 .build();
+
+        log.info("Registering user {} with email={}. Registration hash={}",
+                userEntity.getUsername(), userEntity.getEmail(), userEntity.getRegistrationHash());
         userRepository.save(userEntity);
     }
 

@@ -25,7 +25,7 @@ public class BookController {
     private final CommentService commentService;
     private final ReadingService readingService;
 
-    @PostMapping(value = "/users/{userId}/borrows/{bookId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/users/{userId}/borrows/{bookId}")
     public ResponseEntity borrow(@PathVariable("bookId") long bookId, @PathVariable("userId") long userId) {
         borrowService.borrow(bookId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
