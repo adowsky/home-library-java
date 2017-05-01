@@ -14,13 +14,11 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
 
-    public void commentBook(long bookId, Comment comment) {
-        UserEntity userEntity = userRepository.getByUsername(comment.getAuthorUsername()).orElseThrow(UserException::noSuchUser);
-        CommentEntity commentEntity = new CommentEntity(null, bookId, userEntity.getId(), comment.getComment());
+    public void commentBook(long bookId, Comment comment, long authorId) {
+        CommentEntity commentEntity = new CommentEntity(null, bookId, authorId, comment.getComment());
         commentRepository.save(commentEntity);
 
-        log.info("Comment added to book={} by {}", bookId, userEntity.getUsername());
+        log.info("Comment added to book={} by {}", bookId, comment.getAuthorUsername());
     }
 }

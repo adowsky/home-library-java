@@ -6,3 +6,6 @@ INSERT INTO users(username, password,email, first_name, surname, registration_ha
 INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
   (1, 'Pan Tadeusz', 'Henryk Sienkiewicz', FALSE);
 
+INSERT INTO permissions(owner_id, granted_to) VALUES
+  (1,1);
+

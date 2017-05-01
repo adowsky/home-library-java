@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +15,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LibraryService {
     private final LibraryRepository libraryRepository;
+    private final UserService userService;
 
-    public List<Book> getLibraryOf(Long userId) {
+    public List<Book> getLibraryOf(String username) {
+        long userId = userService.getUserId(username);
         List<LibraryEntity> books = libraryRepository.getAllByLibraryOwner(userId);
         log.info("Fetching library of user={}", userId);
 
@@ -26,10 +27,12 @@ public class LibraryService {
                 .collect(Collectors.toList());
     }
 
-    public void addBook(Book book, Long userId) {
+    public void addBook(Book book, String username) {
         if (book.isBorrowed()) {
             throw LibraryException.cannotAddBorrowed();
         }
+
+        long userId = userService.getUserId(username);
 
         LibraryEntity libraryEntity = LibraryEntity.builder()
                 .libraryOwner(userId)
@@ -39,7 +42,7 @@ public class LibraryService {
                 .build();
         libraryRepository.save(libraryEntity);
 
-        log.info("Added book=({},{}) to user={} library", book.getAuthor(), book.getTitle(), userId);
+        log.info("Added book=({},{}) to user={} library", book.getAuthor(), book.getTitle(), username);
     }
 
     public List<Book> findByTitleAndAuthor(String title, String author) {

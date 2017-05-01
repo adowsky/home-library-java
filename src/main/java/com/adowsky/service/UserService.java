@@ -19,6 +19,7 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final AuthorizationService authorizationService;
+    private final PermissionService permissionService;
 
     public void register(User user, String passwordHash) {
         boolean exists = userRepository.getByUsername(user.getUsername()).isPresent();
@@ -39,6 +40,7 @@ public class UserService {
         log.info("Registering user {} with email={}. Registration hash={}",
                 userEntity.getUsername(), userEntity.getEmail(), userEntity.getRegistrationHash());
         userRepository.save(userEntity);
+        permissionService.createPermissionForNewUser(userEntity);
     }
 
     public AuthorizationToken login(Credentials credentials) {

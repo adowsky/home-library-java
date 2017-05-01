@@ -12,12 +12,10 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ReadingService {
     private final ReadingRepository readingRepository;
-    private final UserService userService;
 
-    public void addReading(Reading reading) {
-        long userId = userService.getUserId(reading.getReaderUsername());
-        ReadingEntity readingEntity = readingRepository.getByBookIdAndAndReaderId(reading.getBookId(), userId)
-                .orElse(new ReadingEntity(null, reading.getBookId(), userId, reading.getStartDate(), reading.getEndDate()));
+    public void addReading(Reading reading, long authorId) {
+        ReadingEntity readingEntity = readingRepository.getByBookIdAndAndReaderId(reading.getBookId(), authorId)
+                .orElse(new ReadingEntity(null, reading.getBookId(), authorId, reading.getStartDate(), reading.getEndDate()));
 
         if(readingEntity.getStartDate() == null) {
             throw ReadingException.noStartDate();
@@ -26,6 +24,6 @@ public class ReadingService {
         readingRepository.save(readingEntity);
 
         log.info("Reading status of book={} changed on {} by {}",
-                readingEntity.getBookId(), readingEntity.getEndDate() == null, userId);
+                readingEntity.getBookId(), readingEntity.getEndDate() == null, authorId);
     }
 }

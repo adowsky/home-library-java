@@ -4,13 +4,16 @@ import com.adowsky.api.AddBookRequest;
 import com.adowsky.api.BookResource;
 import com.adowsky.api.LibraryResponse;
 import com.adowsky.model.Book;
+import com.adowsky.security.AuthenticationToken;
 import com.adowsky.service.LibraryService;
+import com.adowsky.service.PermissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,19 +22,28 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LibraryController {
     private final LibraryService libraryService;
+    private final PermissionService permissionService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<LibraryResponse>> showLibrary(@PathVariable  Long userId) {
-        List<LibraryResponse> books = libraryService.getLibraryOf(userId).stream()
+    @GetMapping
+    public ResponseEntity<List<String>> getLibraries(Principal principal) {
+        AuthenticationToken token = (AuthenticationToken)principal;
+        List<String> usernames = permissionService.findLibraryOwnerUsernamesGranted(token.getUser().getId());
+        return ResponseEntity.ok(usernames);
+
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<List<LibraryResponse>> showLibrary(@PathVariable  String username) {
+        List<LibraryResponse> books = libraryService.getLibraryOf(username).stream()
                 .map(book -> new LibraryResponse(book.getId(), book.getTitle(), book.getAuthor(), book.isBorrowed()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(books);
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity addBook(@PathVariable Long userId, @RequestBody AddBookRequest request) {
+    @PostMapping("/{username}")
+    public ResponseEntity addBook(@PathVariable String username, @RequestBody AddBookRequest request) {
         Book book = new Book(null, request.getTitle(), request.getAuthor(), false);
-        libraryService.addBook(book, userId);
+        libraryService.addBook(book, username);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

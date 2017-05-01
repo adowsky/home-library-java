@@ -11,7 +11,6 @@ import java.util.Date;
 @Getter
 public class ReadingRequest {
     private Date date;
-    private String readerUsername;
     private Progression progression;
 
     public enum Progression {

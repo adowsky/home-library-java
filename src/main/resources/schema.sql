@@ -126,3 +126,25 @@ REFERENCES libraries (id);
 ALTER TABLE reading
   ADD CONSTRAINT reading_users_fk FOREIGN KEY (reader_id)
 REFERENCES users (id);
+
+CREATE TABLE permissions (
+  id         INT AUTO_INCREMENT,
+  owner_id INT NOT NULL,
+  granted_to INT NOT NULL
+);
+
+ALTER TABLE permissions
+    ADD CONSTRAINT permissions_pk PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX permissions_entry__idx
+  ON permissions (owner_id, granted_to ASC);
+
+ALTER TABLE permissions
+  ADD CONSTRAINT permissions_lib_users_fk FOREIGN KEY (owner_id)
+REFERENCES users (id);
+
+ALTER TABLE permissions
+  ADD CONSTRAINT permissions_grant_users_fk FOREIGN KEY (granted_to)
+REFERENCES users (id);
+
+
