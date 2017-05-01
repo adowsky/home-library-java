@@ -8,4 +8,8 @@ public class LibraryException extends RuntimeException {
     public static LibraryException cannotAddBorrowed() {
         return new LibraryException("Cannot add borrowed book");
     }
+
+    public static LibraryException search() {
+        return new LibraryException("Cannot find without data");
+    }
 }

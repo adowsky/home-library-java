@@ -1,11 +1,13 @@
 package com.adowsky.controllers;
 
 import com.adowsky.api.AddBookRequest;
+import com.adowsky.api.BookResource;
 import com.adowsky.api.LibraryResponse;
 import com.adowsky.model.Book;
 import com.adowsky.service.LibraryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +33,12 @@ public class LibraryController {
         Book book = new Book(null, request.getTitle(), request.getAuthor(), false);
         libraryService.addBook(book, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<BookResource>> findBooks(@RequestParam("author") String author, @RequestParam("title") String title) {
+        List<BookResource> books = libraryService.findByTitleAndAuthor(title, author).stream()
+                .map(book -> new BookResource(book.getTitle(), book.getAuthor())).collect(Collectors.toList());
+        return ResponseEntity.ok(books);
     }
 }
