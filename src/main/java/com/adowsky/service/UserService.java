@@ -3,6 +3,7 @@ package com.adowsky.service;
 
 import com.adowsky.model.AuthorizationToken;
 import com.adowsky.model.Credentials;
+import com.adowsky.model.SimpleUser;
 import com.adowsky.model.User;
 import com.adowsky.service.entities.UserEntity;
 import com.adowsky.service.exception.UserException;
@@ -45,7 +46,8 @@ public class UserService {
                 .orElseThrow(UserException::noSuchUser);
 
         if (!user.getPassword().equals(credentials.getPassword())) {
-            throw UserException.invalidCredentials();
+            return null;
+//            throw UserException.invalidCredentials();
         }
 
         return authorizationService.generateAuthorizationToken(user.getId());
@@ -72,6 +74,11 @@ public class UserService {
                 .orElseThrow(UserException::noSuchUser);
 
         return user.getId();
+    }
+
+    SimpleUser getUserById(long id) {
+        UserEntity entity = userRepository.findOne(id);
+        return new SimpleUser(entity.getId(), entity.getUsername());
     }
 
 }

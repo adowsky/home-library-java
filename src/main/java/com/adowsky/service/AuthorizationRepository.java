@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface AuthorizationRepository extends CrudRepository <AuthorizationEntity, Long> {
-
+    AuthorizationEntity getByToken(String token);
 }

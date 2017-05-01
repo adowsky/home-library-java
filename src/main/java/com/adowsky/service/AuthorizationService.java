@@ -1,6 +1,7 @@
 package com.adowsky.service;
 
 import com.adowsky.model.AuthorizationToken;
+import com.adowsky.model.SimpleUser;
 import com.adowsky.service.entities.AuthorizationEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @AllArgsConstructor
-class AuthorizationService {
+public class AuthorizationService {
     private static final int TOKEN_LIFE_DAYS = 5;
     private final AuthorizationRepository authorizationRepository;
 
