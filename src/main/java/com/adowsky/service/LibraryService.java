@@ -27,7 +27,7 @@ public class LibraryService {
                 .collect(Collectors.toList());
     }
 
-    public void addBook(Book book, String username) {
+    public Book addBook(Book book, String username) {
         if (book.isBorrowed()) {
             throw LibraryException.cannotAddBorrowed();
         }
@@ -40,9 +40,10 @@ public class LibraryService {
                 .title(book.getTitle())
                 .borrowed(false)
                 .build();
-        libraryRepository.save(libraryEntity);
+        libraryEntity = libraryRepository.save(libraryEntity);
 
         log.info("Added book=({},{}) to user={} library", book.getAuthor(), book.getTitle(), username);
+        return new Book(libraryEntity.getId(), libraryEntity.getTitle(), libraryEntity.getAuthor(), libraryEntity.isBorrowed());
     }
 
     public List<Book> findByTitleAndAuthor(String title, String author) {

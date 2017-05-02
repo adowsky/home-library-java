@@ -1,8 +1,10 @@
 package com.adowsky.service;
 
+import com.adowsky.model.Permission;
 import com.adowsky.model.User;
 import com.adowsky.service.entities.PermissionEntity;
 import com.adowsky.service.entities.UserEntity;
+import com.adowsky.service.exception.UserException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,20 @@ public class PermissionService {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasAccessTo(long userId, String ownerUsername) {
+        UserEntity userEntity = userRepository.getByUsername(ownerUsername)
+                .orElseThrow(UserException::noSuchUser);
+
+        return permissionRepository.findFirstByOwnerAndGrantedTo(new UserEntity(userId), userEntity)
+        .map(o -> true).orElse(false);
+    }
+
     void createPermissionForNewUser(UserEntity userEntity) {
         permissionRepository.save(new PermissionEntity(null, userEntity, userEntity));
     }
+
+    void grantPermissionToUser(UserEntity grantedTo, UserEntity owner){
+        permissionRepository.save(new PermissionEntity(null, owner, grantedTo));
+    }
+
 }

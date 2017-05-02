@@ -26,6 +26,6 @@ public class AuthorizationService {
         authorizationRepository.save(authorizationEntity);
 
         log.info("Generated authorizationToken for user={}", userId);
-        return new AuthorizationToken(uuid.toString());
+        return new AuthorizationToken(uuid.toString(), expirationDate);
     }
 }

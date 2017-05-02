@@ -8,7 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 @Getter
-public class AuthenticationToken implements Authentication{
+public class AuthenticationToken implements Authentication {
     private String token;
     private SimpleUser user;
     private boolean authenticated;

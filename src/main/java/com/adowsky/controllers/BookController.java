@@ -31,14 +31,14 @@ public class BookController {
 
     @PostMapping(value = "/books/{bookId}/borrows")
     public ResponseEntity borrow(@PathVariable("bookId") long bookId, Principal principal) {
-        AuthenticationToken token = (AuthenticationToken)principal;
+        AuthenticationToken token = (AuthenticationToken) principal;
         borrowService.borrow(bookId, token.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping(value = "/books/{bookId}/comments", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity addComment(@PathVariable long bookId, @RequestBody CommentRequest request, Principal principal) {
-        AuthenticationToken token = (AuthenticationToken)principal;
+        AuthenticationToken token = (AuthenticationToken) principal;
         Comment comment = new Comment(token.getUser().getUsername(), request.getContent());
         commentService.commentBook(bookId, comment, token.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -46,7 +46,7 @@ public class BookController {
 
     @PostMapping(value = "/books/{bookId}/reading", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity readingBook(@PathVariable long bookId, @RequestBody ReadingRequest request, Principal principal) {
-        AuthenticationToken token = (AuthenticationToken)principal;
+        AuthenticationToken token = (AuthenticationToken) principal;
         Date startDate = (request.getProgression() == ReadingRequest.Progression.START) ? request.getDate() : null;
         Date endDate = (request.getProgression() == ReadingRequest.Progression.END) ? request.getDate() : null;
         Reading reading = new Reading(bookId, token.getUser().getUsername(), startDate, endDate);

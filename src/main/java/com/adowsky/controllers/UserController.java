@@ -17,6 +17,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -38,6 +39,6 @@ public class UserController {
     public ResponseEntity login(@PathVariable String username, @Valid @RequestBody LoginRequest request) {
         Credentials credentials = new Credentials(username, request.getPasswordHash());
         AuthorizationToken authorizationToken = userService.login(credentials);
-        return ResponseEntity.ok(new LoginResponse(authorizationToken.getToken()));
+        return ResponseEntity.ok(new LoginResponse(authorizationToken.getToken(), authorizationToken.getExpirationDate()));
     }
 }

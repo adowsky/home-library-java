@@ -14,6 +14,11 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
+    public UserEntity(Long id) {
+        this.id = id;
+    }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -1,11 +1,9 @@
 package com.adowsky.service;
 
 
-import com.adowsky.model.AuthorizationToken;
-import com.adowsky.model.Credentials;
-import com.adowsky.model.SimpleUser;
-import com.adowsky.model.User;
+import com.adowsky.model.*;
 import com.adowsky.service.entities.UserEntity;
+import com.adowsky.service.exception.InternalSecurityException;
 import com.adowsky.service.exception.UserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +46,8 @@ public class UserService {
                 .orElseThrow(UserException::noSuchUser);
 
         if (!user.getPassword().equals(credentials.getPassword())) {
-            return null;
-//            throw UserException.invalidCredentials();
+//            return null;
+            throw UserException.invalidCredentials();
         }
 
         return authorizationService.generateAuthorizationToken(user.getId());
@@ -69,6 +67,21 @@ public class UserService {
 
         userEntity.setConfirmed(true);
         userRepository.save(userEntity);
+    }
+
+    public void grantPermission(Permission permission) {
+        UserEntity owner = userRepository.getByUsername(permission.getResourceOwnerId())
+                .orElseThrow(UserException::noSuchUser);
+        UserEntity granter = userRepository.getByUsername(permission.getGrantedBy())
+                .orElseThrow(UserException::noSuchUser);
+        UserEntity grantedTo = userRepository.getByUsername(permission.getGrantedTo())
+                .orElseThrow(UserException::noSuchUser);
+
+        if(!owner.getId().equals(granter.getId())) {
+            throw InternalSecurityException.notEnoughRights();
+        }
+
+        permissionService.grantPermissionToUser(grantedTo, owner);
     }
 
     long getUserId(String username) {

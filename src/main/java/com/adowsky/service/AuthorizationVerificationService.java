@@ -12,6 +12,10 @@ public class AuthorizationVerificationService {
     private final UserService userService;
 
     public SimpleUser getUserByToken(String authToken) {
+        if(authToken == null) {
+            return null;
+        }
+
         AuthorizationEntity entity = authorizationRepository.getByToken(authToken);
         if(entity == null) {
             return null;
