@@ -20,7 +20,7 @@ public class HomeLibraryPermissionEvaluator implements PermissionEvaluator {
         }
 
         AuthenticationToken token = (AuthenticationToken) authentication;
-        
+
         if("grant".equals(permissionType)) {
             return token.getUser().getUsername().equals(resource);
         }

@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -25,5 +28,11 @@ public class ReadingService {
 
         log.info("Reading status of book={} changed on {} by {}",
                 readingEntity.getBookId(), readingEntity.getEndDate() == null, authorId);
+    }
+
+    public List<String> getUsersReadings(long userId) {
+        List<ReadingEntity> readings = readingRepository.getByReaderId(userId);
+        return readings.stream().filter(reading -> reading.getEndDate() == null)
+                .map(reading -> String.valueOf(reading.getBookId())).collect(Collectors.toList());
     }
 }

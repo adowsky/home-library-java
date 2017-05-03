@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +29,8 @@ public class LibraryController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<String>> getLibraries(Principal principal) {
-        AuthenticationToken token = (AuthenticationToken) principal;
-        List<String> usernames = permissionService.findLibraryOwnerUsernamesGranted(token.getUser().getId());
+    public ResponseEntity<List<String>> getLibraries(AuthenticationToken principal) {
+        List<String> usernames = permissionService.findLibraryOwnerUsernamesGranted(principal.getUser().getId());
         return ResponseEntity.ok(usernames);
 
     }
@@ -66,9 +64,8 @@ public class LibraryController {
 
     @PostMapping("/{username}/permissions")
     @PostAuthorize("hasPermission(#username, 'grant')")
-    public ResponseEntity grantPermission(@RequestBody GrantPermissionRequest request, Principal principal, @RequestParam String username) {
-        AuthenticationToken token = (AuthenticationToken) principal;
-        Permission permission = new Permission(request.getGrantedUsername(), username, token.getUser().getUsername());
+    public ResponseEntity grantPermission(@RequestBody GrantPermissionRequest request, AuthenticationToken principal, @RequestParam String username) {
+        Permission permission = new Permission(request.getGrantedUsername(), username, principal.getUser().getUsername());
         userService.grantPermission(permission);
         return ResponseEntity.noContent().build();
     }
