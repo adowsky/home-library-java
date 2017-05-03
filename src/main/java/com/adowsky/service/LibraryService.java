@@ -1,6 +1,9 @@
 package com.adowsky.service;
 
 import com.adowsky.model.Book;
+import com.adowsky.model.BorrowedBook;
+import com.adowsky.model.Library;
+import com.adowsky.model.SimpleUser;
 import com.adowsky.service.entities.LibraryEntity;
 import com.adowsky.service.exception.LibraryException;
 import lombok.AllArgsConstructor;
@@ -16,19 +19,21 @@ import java.util.stream.Collectors;
 public class LibraryService {
     private final LibraryRepository libraryRepository;
     private final UserService userService;
+    private final BorrowService borrowService;
 
-    public List<Book> getLibraryOf(String username) {
+    public Library getLibraryOf(String username) {
         long userId = userService.getUserId(username);
-        List<LibraryEntity> books = libraryRepository.getAllByLibraryOwner(userId);
+        List<Book> books = libraryRepository.getAllByLibraryOwner(userId).stream()
+                .map(book -> new Book(book.getId(), book.getTitle(), book.getAuthor(), (book.isBorrowed())? username : null))
+                .collect(Collectors.toList());
         log.info("Fetching library of user={}", userId);
 
-        return books.stream()
-                .map(book -> new Book(book.getId(), book.getTitle(), book.getAuthor(), book.isBorrowed()))
-                .collect(Collectors.toList());
+        List<BorrowedBook> borrowedBooks = borrowService.getBooksBorrowedBy(new SimpleUser(userId, username));
+        return new Library(books, borrowedBooks);
     }
 
     public Book addBook(Book book, String username) {
-        if (book.isBorrowed()) {
+        if (book.getBorrowedBy() != null) {
             throw LibraryException.cannotAddBorrowed();
         }
 
@@ -43,7 +48,7 @@ public class LibraryService {
         libraryEntity = libraryRepository.save(libraryEntity);
 
         log.info("Added book=({},{}) to user={} library", book.getAuthor(), book.getTitle(), username);
-        return new Book(libraryEntity.getId(), libraryEntity.getTitle(), libraryEntity.getAuthor(), libraryEntity.isBorrowed());
+        return new Book(libraryEntity.getId(), libraryEntity.getTitle(), libraryEntity.getAuthor(), null);
     }
 
     public List<Book> findByTitleAndAuthor(String title, String author) {
@@ -59,7 +64,7 @@ public class LibraryService {
         else
             books = libraryRepository.getAllByTitleAndAuthor(title, author);
 
-        return books.stream().map(book -> new Book(book.getId(), book.getTitle(), book.getAuthor(), book.isBorrowed()))
+        return books.stream().map(book -> new Book(book.getId(), book.getTitle(), book.getAuthor(), null))
                 .collect(Collectors.toList());
     }
 }

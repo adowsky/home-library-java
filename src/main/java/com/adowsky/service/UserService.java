@@ -57,11 +57,11 @@ public class UserService {
         UserEntity userEntity = userRepository.getByUsername(username)
                 .orElseThrow(UserException::noSuchUser);
 
-        if(userEntity.isConfirmed()) {
+        if (userEntity.isConfirmed()) {
             throw UserException.registrationAlreadyConfirmed();
         }
 
-        if(!userEntity.getRegistrationHash().equals(confirmationId)) {
+        if (!userEntity.getRegistrationHash().equals(confirmationId)) {
             throw UserException.invalidConfirmation();
         }
 
@@ -77,7 +77,7 @@ public class UserService {
         UserEntity grantedTo = userRepository.getByUsername(permission.getGrantedTo())
                 .orElseThrow(UserException::noSuchUser);
 
-        if(!owner.getId().equals(granter.getId())) {
+        if (!owner.getId().equals(granter.getId())) {
             throw InternalSecurityException.notEnoughRights();
         }
 
@@ -96,4 +96,8 @@ public class UserService {
         return new SimpleUser(entity.getId(), entity.getUsername());
     }
 
+    User getRichUserById(long id) {
+        UserEntity entity = userRepository.findOne(id);
+        return new User(entity.getUsername(), entity.getEmail(), entity.getFirstName(), entity.getSurname());
+    }
 }

@@ -15,7 +15,10 @@ public class BorrowEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long bookId;
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    private LibraryEntity book;
     private Long borrower;
+    private Long owner;
     private boolean returned;
 }

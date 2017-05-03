@@ -1,10 +1,8 @@
 package com.adowsky.controllers;
 
-import com.adowsky.api.AddBookRequest;
-import com.adowsky.api.BookResource;
-import com.adowsky.api.GrantPermissionRequest;
-import com.adowsky.api.LibraryResponse;
+import com.adowsky.api.*;
 import com.adowsky.model.Book;
+import com.adowsky.model.Library;
 import com.adowsky.model.Permission;
 import com.adowsky.security.AuthenticationToken;
 import com.adowsky.service.LibraryService;
@@ -37,30 +35,34 @@ public class LibraryController {
 
     @GetMapping("/{username}")
     @PostAuthorize("hasPermission(#username, 'read')")
-    public ResponseEntity<List<LibraryResponse>> showLibrary(@PathVariable String username) {
-        List<LibraryResponse> books = libraryService.getLibraryOf(username).stream()
-                .map(book -> new LibraryResponse(book.getId(), book.getTitle(), book.getAuthor(), book.isBorrowed()))
+    public ResponseEntity<LibraryResponse> showLibrary(@PathVariable String username) {
+        Library library = libraryService.getLibraryOf(username);
+        List<LibraryBookResource> books = library.getOwnedBooks().stream()
+                .map(book -> new LibraryBookResource(book.getId(), book.getTitle(), book.getAuthor(), book.getBorrowedBy()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(books);
+        List<BorrowedBookResource> borrowedBooks = library.getBorrowedBooks().stream()
+                .map(book -> new BorrowedBookResource(new LibraryBookResource(book.getBook().getId(), book.getBook().getTitle(), book.getBook().getAuthor(), book.getBook().getBorrowedBy()),
+                        book.getOwner().getUsername(), book.getOwner().getFirstName(), book.getOwner().getSurname()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new LibraryResponse(books, borrowedBooks));
     }
 
     @PostMapping("/{username}")
     @PostAuthorize("hasPermission(#username, 'read')")
     public ResponseEntity<Book> addBook(@PathVariable String username, @RequestBody AddBookRequest request) {
-        Book book = new Book(null, request.getTitle(), request.getAuthor(), false);
+        Book book = new Book(null, request.getTitle(), request.getAuthor(), null);
         Book created = libraryService.addBook(book, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-
     public ResponseEntity<List<BookResource>> findBooks(@RequestParam(value = "author", required = false) String author,
                                                         @RequestParam(value = "title", required = false) String title) {
         List<BookResource> books = libraryService.findByTitleAndAuthor(title, author).stream()
                 .map(book -> new BookResource(book.getTitle(), book.getAuthor())).collect(Collectors.toList());
         return ResponseEntity.ok(books);
     }
-
 
     @PostMapping("/{username}/permissions")
     @PostAuthorize("hasPermission(#username, 'grant')")

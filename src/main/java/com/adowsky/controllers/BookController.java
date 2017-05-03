@@ -50,6 +50,5 @@ public class BookController {
     public ResponseEntity<List<String>> getReadingBooks(AuthenticationToken principal) {
         List<String> readings = readingService.getUsersReadings(principal.getUser().getId());
         return ResponseEntity.ok(readings);
-
     }
 }

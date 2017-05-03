@@ -3,11 +3,12 @@ package com.adowsky.api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
+import java.util.List;
+
 @Getter
+@AllArgsConstructor
 public class LibraryResponse {
-    private long id;
-    private String title;
-    private String author;
-    private boolean borrowed;
+    private List<LibraryBookResource> ownedBooks;
+    private List<BorrowedBookResource> borrowedBooks;
+
 }

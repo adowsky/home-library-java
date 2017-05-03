@@ -66,6 +66,7 @@ CREATE TABLE borrows (
   id       INT AUTO_INCREMENT,
   book_id  INT NOT NULL,
   borrower INT,
+  owner INT,
   returned BOOLEAN
 );
 
@@ -77,7 +78,11 @@ ALTER TABLE borrows
 REFERENCES libraries (id);
 
 ALTER TABLE borrows
-  ADD CONSTRAINT borrows_users_fk FOREIGN KEY (borrower)
+  ADD CONSTRAINT borrows_users_bor_fk FOREIGN KEY (borrower)
+REFERENCES users (id);
+
+ALTER TABLE borrows
+  ADD CONSTRAINT borrows_users_own_fk FOREIGN KEY (owner)
 REFERENCES users (id);
 
 -- COMMENTS
