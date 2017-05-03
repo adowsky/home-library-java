@@ -10,8 +10,18 @@ INSERT INTO users(username, password,email, first_name, surname, registration_ha
 INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
   (1, 'Pan Tadeusz', 'Henryk Sienkiewicz', FALSE);
 
+
+INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
+  (1, 'Unity. Przewodnik projektanta gier', 'Mike Geig', TRUE);
+
+INSERT INTO borrows( book_id,borrower ,owner,returned) VALUES
+  (2, 2, 1, FALSE);
+
 INSERT INTO permissions(owner_id, granted_to) VALUES
   (1,1);
 
 INSERT INTO permissions(owner_id, granted_to) VALUES
   (2,2);
+
+INSERT INTO permissions(owner_id, granted_to) VALUES
+  (1,2);

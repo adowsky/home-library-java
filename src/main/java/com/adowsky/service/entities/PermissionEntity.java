@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "permissions")
+@Table(name = "permissions", schema = "HOMELIBRARY")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

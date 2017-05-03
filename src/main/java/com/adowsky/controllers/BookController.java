@@ -25,8 +25,11 @@ public class BookController {
     private final ReadingService readingService;
 
     @PostMapping(value = "/books/{bookId}/borrows")
-    public ResponseEntity borrow(@PathVariable("bookId") long bookId, AuthenticationToken principal) {
-        borrowService.borrow(bookId, principal.getUser().getId());
+    public ResponseEntity borrow(@PathVariable("bookId") long bookId,
+                                 AuthenticationToken principal,
+                                 @RequestParam("outside") boolean outside) {
+        Long borrowTo = (outside) ? null : principal.getUser().getId();
+        borrowService.borrow(bookId, borrowTo);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

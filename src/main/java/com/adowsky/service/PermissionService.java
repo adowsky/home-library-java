@@ -30,7 +30,7 @@ public class PermissionService {
         UserEntity userEntity = userRepository.getByUsername(ownerUsername)
                 .orElseThrow(UserException::noSuchUser);
 
-        return permissionRepository.findFirstByOwnerAndGrantedTo(new UserEntity(userId), userEntity)
+        return permissionRepository.findFirstByOwnerAndGrantedTo(userEntity, new UserEntity(userId))
         .map(o -> true).orElse(false);
     }
 

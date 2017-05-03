@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,14 +35,14 @@ public class LibraryController {
     }
 
     @GetMapping("/{username}")
-    @PostAuthorize("hasPermission(#username, 'read')")
+    @PreAuthorize("hasPermission(#username, 'read')")
     public ResponseEntity<LibraryResponse> showLibrary(@PathVariable String username) {
         Library library = libraryService.getLibraryOf(username);
         List<LibraryBookResource> books = library.getOwnedBooks().stream()
-                .map(book -> new LibraryBookResource(book.getId(), book.getTitle(), book.getAuthor(), book.getBorrowedBy()))
+                .map(book -> new LibraryBookResource(book.getId().toString(), book.getTitle(), book.getAuthor(), book.getBorrowedBy()))
                 .collect(Collectors.toList());
         List<BorrowedBookResource> borrowedBooks = library.getBorrowedBooks().stream()
-                .map(book -> new BorrowedBookResource(new LibraryBookResource(book.getBook().getId(), book.getBook().getTitle(), book.getBook().getAuthor(), book.getBook().getBorrowedBy()),
+                .map(book -> new BorrowedBookResource(new LibraryBookResource(book.getBook().getId().toString(), book.getBook().getTitle(), book.getBook().getAuthor(), book.getBook().getBorrowedBy()),
                         book.getOwner().getUsername(), book.getOwner().getFirstName(), book.getOwner().getSurname()))
                 .collect(Collectors.toList());
 
@@ -49,7 +50,7 @@ public class LibraryController {
     }
 
     @PostMapping("/{username}")
-    @PostAuthorize("hasPermission(#username, 'read')")
+    @PreAuthorize("hasPermission(#username, 'read')")
     public ResponseEntity<Book> addBook(@PathVariable String username, @RequestBody AddBookRequest request) {
         Book book = new Book(null, request.getTitle(), request.getAuthor(), null);
         Book created = libraryService.addBook(book, username);
@@ -65,7 +66,7 @@ public class LibraryController {
     }
 
     @PostMapping("/{username}/permissions")
-    @PostAuthorize("hasPermission(#username, 'grant')")
+    @PreAuthorize("hasPermission(#username, 'grant')")
     public ResponseEntity grantPermission(@RequestBody GrantPermissionRequest request, AuthenticationToken principal, @RequestParam String username) {
         Permission permission = new Permission(request.getGrantedUsername(), username, principal.getUser().getUsername());
         userService.grantPermission(permission);

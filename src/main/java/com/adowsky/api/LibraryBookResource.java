@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class LibraryBookResource {
-    private long id;
+    private String id;
     private String title;
     private String author;
     private String borrowedBy;

@@ -23,7 +23,7 @@ public class ReadingService {
         if(readingEntity.getStartDate() == null) {
             throw ReadingException.noStartDate();
         }
-
+        readingEntity.setEndDate(reading.getEndDate());
         readingRepository.save(readingEntity);
 
         log.info("Reading status of book={} changed on {} by {}",

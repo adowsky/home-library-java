@@ -24,19 +24,19 @@ CREATE UNIQUE INDEX users_username__idx
 ALTER TABLE users
   ADD CONSTRAINT users_pk PRIMARY KEY (id);
 
--- AUTHORIZATIONS
+-- auth
 
-CREATE TABLE authorizations (
+CREATE TABLE auth (
   id              INT NOT NULL,
   token           VARCHAR(255),
   expiration_Date DATE
 );
 
-ALTER TABLE authorizations
-  ADD CONSTRAINT authorizations_pk PRIMARY KEY (id);
+ALTER TABLE auth
+  ADD CONSTRAINT auth_pk PRIMARY KEY (id);
 
-ALTER TABLE authorizations
-  ADD CONSTRAINT authorizations_users_fk FOREIGN KEY (id)
+ALTER TABLE auth
+  ADD CONSTRAINT auth_users_fk FOREIGN KEY (id)
 REFERENCES users (id);
 
 -- LIBRARIES
