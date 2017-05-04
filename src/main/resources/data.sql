@@ -8,8 +8,11 @@ INSERT INTO users(username, password,email, first_name, surname, registration_ha
 
 
 INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
-  (1, 'Pan Tadeusz', 'Henryk Sienkiewicz', FALSE);
+  (1, 'Pan Tadeusz', 'Jak żyć', FALSE);
 
+
+INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
+  (1, 'DecoMoreno', 'Cacao', FALSE);
 
 INSERT INTO libraries(library_owner, title, author, borrowed) VALUES
   (1, 'Unity. Przewodnik projektanta gier', 'Mike Geig', TRUE);

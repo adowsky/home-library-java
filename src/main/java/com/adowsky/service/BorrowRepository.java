@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 interface BorrowRepository extends CrudRepository<BorrowEntity, Long> {
     List<BorrowEntity> findAllByBorrower(Long borrowerId);
+    List<BorrowEntity> findAllByBookIdAndReturned(Long bookId, boolean returned);
 }

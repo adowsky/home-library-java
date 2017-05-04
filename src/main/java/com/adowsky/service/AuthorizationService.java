@@ -28,4 +28,9 @@ public class AuthorizationService {
         log.info("Generated authorizationToken for user={}", userId);
         return new AuthorizationToken(uuid.toString(), expirationDate);
     }
+
+    void invalidateUserToken(Long userId) {
+        log.info("Invalidated authorizationToken for user={}", userId);
+        authorizationRepository.delete(userId);
+    }
 }

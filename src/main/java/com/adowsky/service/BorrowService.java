@@ -41,6 +41,31 @@ public class BorrowService {
         libraryRepository.save(libraryEntity);
     }
 
+    @Transactional
+    public void returnBook(Long bookId, Long borrowerId) {
+        LibraryEntity libraryEntity = libraryRepository.findOne(bookId);
+        if (libraryEntity == null) {
+            throw BorrowException.noSuchBook();
+        }
+
+        if (!libraryEntity.isBorrowed()) {
+            throw BorrowException.bookBorrowed();
+        }
+
+        List<BorrowEntity> borrows = borrowRepository.findAllByBookIdAndReturned(bookId, false);
+        if(borrows.size() != 1) {
+            throw BorrowException.multipleBorrow();
+        }
+        BorrowEntity borrow = borrows.get(0);
+        borrow.setReturned(true);
+        borrowRepository.save(borrow);
+
+        libraryEntity.setBorrowed(false);
+
+        log.info("Borrowed book {} from user {} by user {}", bookId, libraryEntity.getLibraryOwner(), borrowerId);
+        libraryRepository.save(libraryEntity);
+    }
+
     List<BorrowedBook> getBooksBorrowedBy(SimpleUser user) {
         List<BorrowEntity> borrows = borrowRepository.findAllByBorrower(user.getId());
         Map<Long, List<BorrowEntity>> borrowsByBookOwner = borrows.stream()

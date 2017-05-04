@@ -53,6 +53,10 @@ public class UserService {
         return authorizationService.generateAuthorizationToken(user.getId());
     }
 
+    public void logout(Long userId) {
+        authorizationService.invalidateUserToken(userId);
+    }
+
     public void confirmRegistration(String username, String confirmationId) {
         UserEntity userEntity = userRepository.getByUsername(username)
                 .orElseThrow(UserException::noSuchUser);

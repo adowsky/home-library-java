@@ -1,7 +1,9 @@
 package com.adowsky.controllers;
 
+import com.adowsky.api.BorrowRequest;
 import com.adowsky.api.CommentRequest;
 import com.adowsky.api.ReadingRequest;
+import com.adowsky.model.Borrow;
 import com.adowsky.model.Comment;
 import com.adowsky.model.Reading;
 import com.adowsky.security.AuthenticationToken;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -19,17 +22,20 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class BookController {
     private final BorrowService borrowService;
     private final CommentService commentService;
     private final ReadingService readingService;
 
     @PostMapping(value = "/books/{bookId}/borrows")
-    public ResponseEntity borrow(@PathVariable("bookId") long bookId,
-                                 AuthenticationToken principal,
-                                 @RequestParam("outside") boolean outside) {
-        Long borrowTo = (outside) ? null : principal.getUser().getId();
-        borrowService.borrow(bookId, borrowTo);
+    public ResponseEntity borrow(@PathVariable("bookId") long bookId, AuthenticationToken principal, @RequestBody BorrowRequest request) {
+        Long borrowTo = (request.isOutside()) ? null : principal.getUser().getId();
+        if (request.getType() == BorrowRequest.Type.BORROW)
+            borrowService.borrow(bookId, borrowTo);
+        else
+            borrowService.returnBook(bookId, borrowTo);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

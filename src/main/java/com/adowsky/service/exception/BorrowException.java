@@ -12,4 +12,8 @@ public class BorrowException extends RuntimeException {
     public static BorrowException bookBorrowed() {
         return new BorrowException("Cannot borrow borrowed book");
     }
+
+    public static BorrowException multipleBorrow() {
+        return new BorrowException("Book marked as borrowed multiple times");
+    }
 }

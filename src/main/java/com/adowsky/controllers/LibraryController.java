@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/libraries")
+@PreAuthorize("isAuthenticated()")
 @AllArgsConstructor
 public class LibraryController {
     private final LibraryService libraryService;

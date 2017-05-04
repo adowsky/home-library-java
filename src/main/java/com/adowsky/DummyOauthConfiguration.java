@@ -7,6 +7,7 @@ import com.adowsky.security.TokenExtractingFilter;
 import com.adowsky.service.PermissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,9 +40,10 @@ public class DummyOauthConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAt(new TokenExtractingFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/users/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/authorize").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/h2-console").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/**").authenticated();
 //        ;
     }
 

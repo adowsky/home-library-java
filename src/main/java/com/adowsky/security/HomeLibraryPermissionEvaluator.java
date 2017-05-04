@@ -25,6 +25,11 @@ public class HomeLibraryPermissionEvaluator implements PermissionEvaluator {
             return token.getUser().getUsername().equals(resource);
         }
 
+        if("self".equals(permissionType)) {
+            return token.getUser().getUsername().equals(resource);
+        }
+
+
         return permissionService.hasAccessTo(token.getUser().getId(), (String)resource);
     }
 
