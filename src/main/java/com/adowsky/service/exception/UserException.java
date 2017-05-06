@@ -1,27 +1,33 @@
 package com.adowsky.service.exception;
 
-public class UserException extends RuntimeException {
-    private UserException(String message) {
-        super(message);
+import com.adowsky.service.entities.UserEntity;
+
+public class UserException extends InternalException {
+    private UserException(String message, int code) {
+        super(message, code);
     }
 
     public static UserException noSuchUser() {
-        return new UserException("No such user");
+        return new UserException("No such user", 201);
     }
 
     public static UserException userExists() {
-        return new UserException("User exists");
+        return new UserException("User exists", 202);
     }
 
     public static UserException invalidCredentials() {
-        return new UserException("Invalid credentials");
+        return new UserException("Invalid credentials", 203);
     }
 
     public static UserException registrationAlreadyConfirmed() {
-        return new UserException("Registration already confirmed");
+        return new UserException("Registration already confirmed", 204);
+    }
+
+    public static UserException notConfirmed() {
+        return new UserException("User need to be confirmed to login", 206);
     }
 
     public static UserException invalidConfirmation() {
-        return new UserException("Invalid confirmation hash");
+        return new UserException("Invalid confirmation hash", 205);
     }
 }

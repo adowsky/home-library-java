@@ -1,7 +1,5 @@
 package com.adowsky.service;
 
-import com.adowsky.model.Permission;
-import com.adowsky.model.User;
 import com.adowsky.service.entities.PermissionEntity;
 import com.adowsky.service.entities.UserEntity;
 import com.adowsky.service.exception.UserException;

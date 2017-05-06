@@ -2,14 +2,17 @@ package com.adowsky.controllers;
 
 import com.adowsky.api.BorrowRequest;
 import com.adowsky.api.CommentRequest;
+import com.adowsky.api.GrantPermissionRequest;
 import com.adowsky.api.ReadingRequest;
 import com.adowsky.model.Borrow;
 import com.adowsky.model.Comment;
+import com.adowsky.model.Permission;
 import com.adowsky.model.Reading;
 import com.adowsky.security.AuthenticationToken;
 import com.adowsky.service.BorrowService;
 import com.adowsky.service.CommentService;
 import com.adowsky.service.ReadingService;
+import com.adowsky.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,11 +25,11 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@PreAuthorize("isAuthenticated()")
 public class BookController {
     private final BorrowService borrowService;
     private final CommentService commentService;
     private final ReadingService readingService;
+    private final UserService userService;
 
     @PostMapping(value = "/books/{bookId}/borrows")
     public ResponseEntity borrow(@PathVariable("bookId") long bookId, AuthenticationToken principal, @RequestBody BorrowRequest request) {
@@ -60,4 +63,6 @@ public class BookController {
         List<String> readings = readingService.getUsersReadings(principal.getUser().getId());
         return ResponseEntity.ok(readings);
     }
+
+
 }

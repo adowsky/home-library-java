@@ -29,4 +29,5 @@ public class RegistrationRequest {
     @NotNull
     @Pattern(regexp = "[\\p{L}-]{3,}")
     private String lastName;
+    private String registrationHash;
 }

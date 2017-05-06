@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class Permission {
-    private String grantedTo;
+    private String grantedToEmail;
     private String resourceOwnerId;
     private String grantedBy;
 }

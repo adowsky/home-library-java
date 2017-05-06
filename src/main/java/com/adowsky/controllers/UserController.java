@@ -21,13 +21,13 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity register(@Valid @RequestBody RegistrationRequest request) {
         User user = new User(request.getUsername(), request.getEmail(), request.getFirstName(), request.getLastName());
-        userService.register(user, request.getPasswordHash());
+        userService.register(user, request.getPasswordHash(), request.getRegistrationHash());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/{username}/confirmation")
-    public ResponseEntity confirmRegistration(@PathVariable String username, @RequestParam("confirm") String confirmationId) {
-        userService.confirmRegistration(username, confirmationId);
+    @PostMapping(value = "/confirmation")
+    public ResponseEntity confirmRegistration(@RequestParam("confirm") String confirmationId) {
+        userService.confirmRegistration(confirmationId);
         return ResponseEntity.noContent().build();
     }
 }

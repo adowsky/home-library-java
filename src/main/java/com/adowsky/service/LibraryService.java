@@ -8,6 +8,7 @@ import com.adowsky.service.entities.LibraryEntity;
 import com.adowsky.service.exception.LibraryException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,14 +56,14 @@ public class LibraryService {
         log.info("Looking for book: author={} title={}", author, title);
 
         List<LibraryEntity> books;
-        if (author == null && title == null)
+        if (StringUtils.isBlank(author) && StringUtils.isBlank(title))
             throw LibraryException.search();
-        else if (author == null)
-            books = libraryRepository.getAllByTitle(title);
-        else if (title == null)
-            books = libraryRepository.getAllByAuthor(author);
+        else if (StringUtils.isBlank(author))
+            books = libraryRepository.getAllByTitleContains(title);
+        else if (StringUtils.isBlank(title))
+            books = libraryRepository.getAllByAuthorContains(author);
         else
-            books = libraryRepository.getAllByTitleAndAuthor(title, author);
+            books = libraryRepository.getAllByTitleContainsAndAuthorContains(title, author);
 
         return books.stream().map(book -> new Book(book.getId(), book.getTitle(), book.getAuthor(), null))
                 .collect(Collectors.toList());

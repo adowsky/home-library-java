@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class GrantPermissionRequest {
-    private String grantedEmail;
+public class FindRequest {
+    private String author;
+    private String title;
 }

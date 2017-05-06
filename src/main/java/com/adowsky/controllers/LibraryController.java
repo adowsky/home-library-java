@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/libraries")
-@PreAuthorize("isAuthenticated()")
 @AllArgsConstructor
 public class LibraryController {
     private final LibraryService libraryService;
@@ -58,18 +57,16 @@ public class LibraryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<BookResource>> findBooks(@RequestParam(value = "author", required = false) String author,
-                                                        @RequestParam(value = "title", required = false) String title) {
-        List<BookResource> books = libraryService.findByTitleAndAuthor(title, author).stream()
+    @PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<BookResource>> findBooks(@RequestBody FindRequest request) {
+        List<BookResource> books = libraryService.findByTitleAndAuthor(request.getTitle(), request.getAuthor()).stream()
                 .map(book -> new BookResource(book.getTitle(), book.getAuthor())).collect(Collectors.toList());
         return ResponseEntity.ok(books);
     }
 
-    @PostMapping("/{username}/permissions")
-    @PreAuthorize("hasPermission(#username, 'grant')")
-    public ResponseEntity grantPermission(@RequestBody GrantPermissionRequest request, AuthenticationToken principal, @RequestParam String username) {
-        Permission permission = new Permission(request.getGrantedUsername(), username, principal.getUser().getUsername());
+    @PostMapping("/permissions")
+    public ResponseEntity grantPermission(@RequestBody GrantPermissionRequest request, AuthenticationToken principal) {
+        Permission permission = new Permission(request.getGrantedEmail(), principal.getUser().getUsername(), principal.getUser().getUsername());
         userService.grantPermission(permission);
         return ResponseEntity.noContent().build();
     }

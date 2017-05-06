@@ -35,8 +35,8 @@ public class DummyOauthConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-//                .headers().frameOptions().disable()
-//                .and()
+                .headers().frameOptions().disable()
+                .and()
                 .addFilterAt(new TokenExtractingFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/users/**").permitAll()

@@ -2,13 +2,22 @@ package com.adowsky.service;
 
 
 import com.adowsky.model.*;
+import com.adowsky.service.entities.InvitationEntity;
 import com.adowsky.service.entities.UserEntity;
 import com.adowsky.service.exception.InternalSecurityException;
 import com.adowsky.service.exception.UserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -16,10 +25,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final InvitationRepository invitationRepository;
     private final AuthorizationService authorizationService;
     private final PermissionService permissionService;
+    private final MailService mailService;
 
-    public void register(User user, String passwordHash) {
+    @Transactional
+    public void register(User user, String passwordHash, String registrationHash) {
         boolean exists = userRepository.getByUsername(user.getUsername()).isPresent();
         if (exists) {
             throw UserException.userExists();
@@ -33,12 +45,26 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .registrationHash(UUID.randomUUID().toString())
+                .creationDate(new Date())
                 .build();
 
         log.info("Registering user {} with email={}. Registration hash={}",
                 userEntity.getUsername(), userEntity.getEmail(), userEntity.getRegistrationHash());
         userRepository.save(userEntity);
         permissionService.createPermissionForNewUser(userEntity);
+        mailService.sendRegistrationMail(user.getEmail(), userEntity.getRegistrationHash());
+
+            if (registrationHash != null) {
+            log.info("Registered user is from invitation hash={}", registrationHash);
+            Date theDayBefore = valueOfDate(LocalDateTime.now().minusDays(1));
+            invitationRepository.findFirstByInvitationHash(registrationHash)
+                    .filter(invitation -> theDayBefore.before(invitation.getCreationDate()) && !invitation.isCompleted())
+                    .ifPresent(invitation -> {
+                        invitation.setCompleted(true);
+                        invitationRepository.save(invitation);
+                        permissionService.grantPermissionToUser(userEntity, new UserEntity(invitation.getInviterId()));
+                    });
+        }
     }
 
     public AuthorizationToken login(Credentials credentials) {
@@ -50,6 +76,11 @@ public class UserService {
             throw UserException.invalidCredentials();
         }
 
+        if (!user.isConfirmed()) {
+//            return null;
+            throw UserException.notConfirmed();
+        }
+
         return authorizationService.generateAuthorizationToken(user.getId());
     }
 
@@ -57,35 +88,40 @@ public class UserService {
         authorizationService.invalidateUserToken(userId);
     }
 
-    public void confirmRegistration(String username, String confirmationId) {
-        UserEntity userEntity = userRepository.getByUsername(username)
+    public void confirmRegistration(String confirmationId) {
+        UserEntity userEntity = userRepository.getByRegistrationHash(confirmationId)
                 .orElseThrow(UserException::noSuchUser);
 
         if (userEntity.isConfirmed()) {
             throw UserException.registrationAlreadyConfirmed();
         }
 
-        if (!userEntity.getRegistrationHash().equals(confirmationId)) {
-            throw UserException.invalidConfirmation();
-        }
-
         userEntity.setConfirmed(true);
         userRepository.save(userEntity);
     }
 
+    @Transactional
     public void grantPermission(Permission permission) {
         UserEntity owner = userRepository.getByUsername(permission.getResourceOwnerId())
                 .orElseThrow(UserException::noSuchUser);
         UserEntity granter = userRepository.getByUsername(permission.getGrantedBy())
-                .orElseThrow(UserException::noSuchUser);
-        UserEntity grantedTo = userRepository.getByUsername(permission.getGrantedTo())
                 .orElseThrow(UserException::noSuchUser);
 
         if (!owner.getId().equals(granter.getId())) {
             throw InternalSecurityException.notEnoughRights();
         }
 
-        permissionService.grantPermissionToUser(grantedTo, owner);
+        Optional<UserEntity> grantedTo = userRepository.getByEmail(permission.getGrantedToEmail());
+
+        if (grantedTo.isPresent()) {
+            permissionService.grantPermissionToUser(grantedTo.get(), owner);
+        } else {
+            String invitationHash = UUID.randomUUID().toString();
+            InvitationEntity invitationEntity = new InvitationEntity(null, owner.getId(),
+                    permission.getGrantedToEmail(), invitationHash, new Date(), false);
+            invitationRepository.save(invitationEntity);
+            mailService.sendInvitationMail(permission.getGrantedToEmail(), owner.getUsername(), invitationHash);
+        }
     }
 
     long getUserId(String username) {
@@ -103,5 +139,9 @@ public class UserService {
     User getRichUserById(long id) {
         UserEntity entity = userRepository.findOne(id);
         return new User(entity.getUsername(), entity.getEmail(), entity.getFirstName(), entity.getSurname());
+    }
+
+    private Date valueOfDate(LocalDateTime localDate) {
+        return Date.from(Instant.from(localDate.atZone(ZoneId.systemDefault())));
     }
 }

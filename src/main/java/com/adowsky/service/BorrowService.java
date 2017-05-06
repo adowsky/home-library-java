@@ -48,8 +48,8 @@ public class BorrowService {
             throw BorrowException.noSuchBook();
         }
 
-        if (!libraryEntity.isBorrowed()) {
-            throw BorrowException.bookBorrowed();
+        if (libraryEntity.isBorrowed()) {
+            throw BorrowException.bookNotBorrowed();
         }
 
         List<BorrowEntity> borrows = borrowRepository.findAllByBookIdAndReturned(bookId, false);
@@ -62,13 +62,13 @@ public class BorrowService {
 
         libraryEntity.setBorrowed(false);
 
-        log.info("Borrowed book {} from user {} by user {}", bookId, libraryEntity.getLibraryOwner(), borrowerId);
+        log.info("Returned book {} from user {} by user {}", bookId, libraryEntity.getLibraryOwner(), borrowerId);
         libraryRepository.save(libraryEntity);
     }
 
     List<BorrowedBook> getBooksBorrowedBy(SimpleUser user) {
         List<BorrowEntity> borrows = borrowRepository.findAllByBorrower(user.getId());
-        Map<Long, List<BorrowEntity>> borrowsByBookOwner = borrows.stream()
+        Map<Long, List<BorrowEntity>> borrowsByBookOwner = borrows.stream().filter(borrow -> !borrow.isReturned())
                 .collect(Collectors.groupingBy(BorrowEntity::getOwner));
         Map<User, List<BorrowEntity>> borrowsByOwnerUser = borrowsByBookOwner.entrySet().stream()
                 .collect(Collectors.toMap(e -> userService.getRichUserById(e.getKey()), Map.Entry::getValue));

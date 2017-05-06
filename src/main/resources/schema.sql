@@ -15,11 +15,15 @@ CREATE TABLE users (
   first_name        VARCHAR(255) NOT NULL,
   surname           VARCHAR(255) NOT NULL,
   registration_hash VARCHAR(255) NOT NULL,
-  confirmed         BOOLEAN
+  confirmed         BOOLEAN,
+  creation_date     TIMESTAMP NOT NULL
 );
 
 CREATE UNIQUE INDEX users_username__idx
   ON users (username ASC);
+
+CREATE UNIQUE INDEX users_email__idx
+  ON users (email ASC);
 
 ALTER TABLE users
   ADD CONSTRAINT users_pk PRIMARY KEY (id);
@@ -151,5 +155,25 @@ REFERENCES users (id);
 ALTER TABLE permissions
   ADD CONSTRAINT permissions_grant_users_fk FOREIGN KEY (granted_to)
 REFERENCES users (id);
+
+CREATE TABLE invitations (
+  id         INT AUTO_INCREMENT,
+  inviter_id INT NOT NULL,
+  sent_to VARCHAR(255) NOT NULL,
+  INVITATION_HASH VARCHAR(255) NOT NULL,
+  creation_date TIMESTAMP,
+  completed BOOLEAN
+);
+
+ALTER TABLE invitations
+  ADD CONSTRAINT invitations_pk PRIMARY KEY (id);
+
+ALTER TABLE invitations
+  ADD CONSTRAINT permissions_users_fk FOREIGN KEY (inviter_id)
+REFERENCES users (id);
+
+
+CREATE UNIQUE INDEX invitations_email__idx
+  ON invitations (sent_to ASC);
 
 
