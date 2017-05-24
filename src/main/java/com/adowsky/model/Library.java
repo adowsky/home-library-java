@@ -8,6 +8,6 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class Library {
-    private final List<Book> ownedBooks;
+    private final List<LibraryBook> ownedLibraryBooks;
     private final List<BorrowedBook> borrowedBooks;
 }

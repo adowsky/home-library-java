@@ -12,4 +12,5 @@ interface LibraryRepository extends CrudRepository<LibraryEntity, Long> {
     List<LibraryEntity> getAllByAuthorContains(String author);
     List<LibraryEntity> getAllByTitleContains(String title);
     List<LibraryEntity> getAllByTitleContainsAndAuthorContains(String title, String author);
+    long countAllByLibraryOwnerAndTitleAndAuthor(Long libraryOwner, String title, String author);
 }

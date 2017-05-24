@@ -3,12 +3,16 @@ package com.adowsky.service;
 import com.adowsky.model.*;
 import com.adowsky.service.entities.BorrowEntity;
 import com.adowsky.service.entities.LibraryEntity;
+import com.adowsky.service.entities.UserEntity;
 import com.adowsky.service.exception.BorrowException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,7 +36,8 @@ public class BorrowService {
             throw BorrowException.bookBorrowed();
         }
 
-        BorrowEntity borrowEntity = new BorrowEntity(null, libraryEntity, borrowerId, libraryEntity.getLibraryOwner(), false);
+        BorrowEntity borrowEntity = new BorrowEntity(null, libraryEntity, new UserEntity(borrowerId),
+                libraryEntity.getLibraryOwner(), new Timestamp(new Date().getTime()), null);
         borrowRepository.save(borrowEntity);
 
         libraryEntity.setBorrowed(true);
@@ -48,16 +53,16 @@ public class BorrowService {
             throw BorrowException.noSuchBook();
         }
 
-        if (libraryEntity.isBorrowed()) {
+        if (!libraryEntity.isBorrowed()) {
             throw BorrowException.bookNotBorrowed();
         }
 
-        List<BorrowEntity> borrows = borrowRepository.findAllByBookIdAndReturned(bookId, false);
-        if(borrows.size() != 1) {
+        List<BorrowEntity> borrows = borrowRepository.findAllByBookIdAndReturnDateNull(bookId);
+        if (borrows.size() != 1) {
             throw BorrowException.multipleBorrow();
         }
         BorrowEntity borrow = borrows.get(0);
-        borrow.setReturned(true);
+        borrow.setReturnDate(new Timestamp(new Date().getTime()));
         borrowRepository.save(borrow);
 
         libraryEntity.setBorrowed(false);
@@ -67,16 +72,38 @@ public class BorrowService {
     }
 
     List<BorrowedBook> getBooksBorrowedBy(SimpleUser user) {
-        List<BorrowEntity> borrows = borrowRepository.findAllByBorrower(user.getId());
-        Map<Long, List<BorrowEntity>> borrowsByBookOwner = borrows.stream().filter(borrow -> !borrow.isReturned())
+        List<BorrowEntity> borrows = borrowRepository.findAllByBorrower(new UserEntity(user.getId()));
+        Map<Long, List<BorrowEntity>> borrowsByBookOwner = borrows.stream().filter(borrow -> borrow.getReturnDate() == null)
                 .collect(Collectors.groupingBy(BorrowEntity::getOwner));
         Map<User, List<BorrowEntity>> borrowsByOwnerUser = borrowsByBookOwner.entrySet().stream()
                 .collect(Collectors.toMap(e -> userService.getRichUserById(e.getKey()), Map.Entry::getValue));
 
         return borrowsByOwnerUser.entrySet().stream()
                 .flatMap(entity -> entity.getValue().stream()
-                        .map(b -> new BorrowedBook(new Book(b.getBook().getId(), b.getBook().getTitle(), b.getBook().getAuthor(), user.getUsername()),
+                        .map(b -> new BorrowedBook(new LibraryBook(b.getBook().getId(), b.getBook().getTitle(), b.getBook().getAuthor(), user.getUsername()),
                                 new UserDetails(entity.getKey().getUsername(), entity.getKey().getFirstName(), entity.getKey().getSurname()))))
                 .collect(Collectors.toList());
+    }
+
+    Map<Long, String> getBorrowerUsernameByBookIdBorrowedFrom(long userId) {
+        return borrowRepository.findAllByOwnerAndReturnDateNull(userId).stream()
+                .collect(Collectors.toMap(entity -> entity.getBook().getId(),
+                        entity -> entity.getBorrower().getUsername()));
+    }
+
+    List<Book> getBooksBorrowedFrom(long userId) {
+        return borrowRepository.findAllByOwnerAndReturnDateNull(userId).stream()
+                .map(entity -> new Book(entity.getId().toString(), entity.getBook().getTitle(),entity.getBook().getAuthor()))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<BorrowHistoryEntry> getBookBorrowHistory(long bookId) {
+        return borrowRepository.findAllByBookId(bookId).stream()
+                .map(entity -> new BorrowHistoryEntry(bookId,entity.getBorrowDate(), entity.getReturnDate(),
+                        entity.getBorrower().getUsername()))
+                .sorted(Comparator.comparing(BorrowHistoryEntry::getBorrowDate))
+                .collect(Collectors.toList());
+
     }
 }

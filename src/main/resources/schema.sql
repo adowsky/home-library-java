@@ -16,7 +16,7 @@ CREATE TABLE users (
   surname           VARCHAR(255) NOT NULL,
   registration_hash VARCHAR(255) NOT NULL,
   confirmed         BOOLEAN,
-  creation_date     TIMESTAMP NOT NULL
+  creation_date     TIMESTAMP    NOT NULL
 );
 
 CREATE UNIQUE INDEX users_username__idx
@@ -67,11 +67,12 @@ REFERENCES users (id);
 -- BORROWS
 
 CREATE TABLE borrows (
-  id       INT AUTO_INCREMENT,
-  book_id  INT NOT NULL,
-  borrower INT,
-  owner INT,
-  returned BOOLEAN
+  id          INT AUTO_INCREMENT,
+  book_id     INT       NOT NULL,
+  borrower    INT,
+  owner       INT,
+  borrow_date TIMESTAMP NOT NULL,
+  return_date TIMESTAMP
 );
 
 ALTER TABLE borrows
@@ -94,7 +95,7 @@ REFERENCES users (id);
 CREATE TABLE comments (
   id      INT AUTO_INCREMENT,
   book_id INT              NOT NULL,
-  author  INT              NOT NULL,
+  author  VARCHAR(255)     NOT NULL,
   content VARCHAR(1048576) NOT NULL
 );
 
@@ -110,7 +111,7 @@ REFERENCES libraries (id);
 
 ALTER TABLE comments
   ADD CONSTRAINT comments_users_fk FOREIGN KEY (author)
-REFERENCES users (id);
+REFERENCES users (username);
 
 -- READING
 
@@ -118,12 +119,9 @@ CREATE TABLE reading (
   id         INT AUTO_INCREMENT,
   book_id    INT  NOT NULL,
   reader_id  INT  NOT NULL,
-  start_date DATE NOT NULL,
-  end_date   DATE
+  start_date TIMESTAMP NOT NULL,
+  end_date   TIMESTAMP
 );
-
-CREATE UNIQUE INDEX reading_entry__idx
-  ON reading (book_id, reader_id ASC);
 
 ALTER TABLE reading
   ADD CONSTRAINT reading_pk PRIMARY KEY (id);
@@ -138,12 +136,12 @@ REFERENCES users (id);
 
 CREATE TABLE permissions (
   id         INT AUTO_INCREMENT,
-  owner_id INT NOT NULL,
+  owner_id   INT NOT NULL,
   granted_to INT NOT NULL
 );
 
 ALTER TABLE permissions
-    ADD CONSTRAINT permissions_pk PRIMARY KEY (id);
+  ADD CONSTRAINT permissions_pk PRIMARY KEY (id);
 
 CREATE UNIQUE INDEX permissions_entry__idx
   ON permissions (owner_id, granted_to ASC);
@@ -157,12 +155,12 @@ ALTER TABLE permissions
 REFERENCES users (id);
 
 CREATE TABLE invitations (
-  id         INT AUTO_INCREMENT,
-  inviter_id INT NOT NULL,
-  sent_to VARCHAR(255) NOT NULL,
+  id              INT AUTO_INCREMENT,
+  inviter_id      INT          NOT NULL,
+  sent_to         VARCHAR(255) NOT NULL,
   INVITATION_HASH VARCHAR(255) NOT NULL,
-  creation_date TIMESTAMP,
-  completed BOOLEAN
+  creation_date   TIMESTAMP,
+  completed       BOOLEAN
 );
 
 ALTER TABLE invitations

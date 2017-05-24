@@ -1,14 +1,13 @@
-package com.adowsky.api;
+package com.adowsky.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Getter
-@NoArgsConstructor
-public class BookResource {
+public class LibraryBook {
+    private Long id;
     private String title;
     private String author;
-    private String source;
+    private String borrowedBy;
 }

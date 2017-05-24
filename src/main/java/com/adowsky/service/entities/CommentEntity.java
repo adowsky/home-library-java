@@ -16,6 +16,6 @@ public class CommentEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long bookId;
-    private Long author;
+    private String author;
     private String content;
 }

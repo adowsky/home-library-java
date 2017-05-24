@@ -12,4 +12,10 @@ public class LibraryException extends InternalException {
     public static LibraryException search() {
         return new LibraryException("Cannot find without data", 402);
     }
+    public static LibraryException noSuchBook() {
+        return new LibraryException("Cannot find given book", 403);
+    }
+    public static LibraryException bookExists() {
+        return new LibraryException("Given book already exists", 404);
+    }
 }

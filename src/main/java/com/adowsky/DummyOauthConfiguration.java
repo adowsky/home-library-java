@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 @AllArgsConstructor
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class DummyOauthConfiguration extends WebSecurityConfigurerAdapter {
 
     private final DummyOauthAuthenticationProvider authenticationProvider;
@@ -39,12 +39,12 @@ public class DummyOauthConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAt(new TokenExtractingFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/users/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/authorize").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
-                .antMatchers("/h2-console").permitAll()
-                .antMatchers("/**").authenticated();
-//        ;
+//                .antMatchers("/users/**").permitAll()
+//                .antMatchers(HttpMethod.POST, "/authorize").permitAll()
+//                .antMatchers("/h2-console/**").permitAll()
+//                .antMatchers("/h2-console").permitAll()
+                .anyRequest().permitAll();
+        ;
     }
 
     @Override

@@ -6,6 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class BorrowedBook {
-    private Book book;
+    private LibraryBook libraryBook;
     private UserDetails owner;
 }

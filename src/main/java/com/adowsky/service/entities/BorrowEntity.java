@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "borrows", schema = "HOMELIBRARY")
@@ -18,7 +20,10 @@ public class BorrowEntity {
     @ManyToOne
     @JoinColumn(name = "book_id")
     private LibraryEntity book;
-    private Long borrower;
+    @ManyToOne
+    @JoinColumn(name = "borrower")
+    private UserEntity borrower;
     private Long owner;
-    private boolean returned;
+    private Timestamp borrowDate;
+    private Timestamp returnDate;
 }

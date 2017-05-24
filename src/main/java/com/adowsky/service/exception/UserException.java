@@ -23,6 +23,10 @@ public class UserException extends InternalException {
         return new UserException("Registration already confirmed", 204);
     }
 
+    public static UserException confirmationOutdated() {
+        return new UserException("Registration confirmation outdated", 207);
+    }
+
     public static UserException notConfirmed() {
         return new UserException("User need to be confirmed to login", 206);
     }

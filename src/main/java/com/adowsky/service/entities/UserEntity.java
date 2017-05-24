@@ -31,5 +31,5 @@ public class UserEntity {
     private String surname;
     private String registrationHash;
     private boolean confirmed;
-    private Date creationDate;
+    private Timestamp creationDate;
 }

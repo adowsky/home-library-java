@@ -14,6 +14,10 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 public class LibraryEntity {
+    public LibraryEntity(Long id) {
+        this.id = id;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

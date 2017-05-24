@@ -45,7 +45,7 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .registrationHash(UUID.randomUUID().toString())
-                .creationDate(new Date())
+                .creationDate(new Timestamp(new Date().getTime()))
                 .build();
 
         log.info("Registering user {} with email={}. Registration hash={}",
@@ -54,7 +54,7 @@ public class UserService {
         permissionService.createPermissionForNewUser(userEntity);
         mailService.sendRegistrationMail(user.getEmail(), userEntity.getRegistrationHash());
 
-            if (registrationHash != null) {
+        if (registrationHash != null) {
             log.info("Registered user is from invitation hash={}", registrationHash);
             Date theDayBefore = valueOfDate(LocalDateTime.now().minusDays(1));
             invitationRepository.findFirstByInvitationHash(registrationHash)
@@ -96,6 +96,10 @@ public class UserService {
             throw UserException.registrationAlreadyConfirmed();
         }
 
+        if(isOutdated(userEntity)) {
+            throw UserException.confirmationOutdated();
+        }
+
         userEntity.setConfirmed(true);
         userRepository.save(userEntity);
     }
@@ -124,6 +128,12 @@ public class UserService {
         }
     }
 
+    public void removeOutdatedNotConfirmedUsers() {
+        userRepository.findAllByConfirmed(false).stream()
+                .filter(this::isOutdated)
+                .forEach(userRepository::delete);
+    }
+
     long getUserId(String username) {
         UserEntity user = userRepository.getByUsername(username)
                 .orElseThrow(UserException::noSuchUser);
@@ -143,5 +153,9 @@ public class UserService {
 
     private Date valueOfDate(LocalDateTime localDate) {
         return Date.from(Instant.from(localDate.atZone(ZoneId.systemDefault())));
+    }
+
+    private boolean isOutdated(UserEntity userEntity) {
+        return userEntity.getCreationDate().toLocalDateTime().plusDays(1).isBefore(LocalDateTime.now());
     }
 }

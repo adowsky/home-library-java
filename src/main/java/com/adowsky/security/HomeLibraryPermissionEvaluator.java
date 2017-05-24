@@ -19,6 +19,10 @@ public class HomeLibraryPermissionEvaluator implements PermissionEvaluator {
             throw new PermissionException("Invalid id type");
         }
 
+        if(!AuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+            return false;
+        }
+
         AuthenticationToken token = (AuthenticationToken) authentication;
 
         if("grant".equals(permissionType)) {
@@ -37,6 +41,10 @@ public class HomeLibraryPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Serializable serializable, String s, Object o) {
         if(!(serializable instanceof String)) {
             throw new PermissionException("Invalid id type");
+        }
+
+        if(!AuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+            return false;
         }
 
         AuthenticationToken token = (AuthenticationToken) authentication;
